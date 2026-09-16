@@ -27,10 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-l$-)23j!=n97ckqh+!61jpp*=sz06yb17mrasn1p$6_%e&9f5-'
 
+ADMIN_FEATURE_KEY = os.environ.get("ADMIN_FEATURE_KEY")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "muhammad-zaky53-myportofolio.pws.cs.ui.ac.id"]
+
+CSRF_TRUSTED_ORIGINS = ["https://muhammad-zaky53-myportofolio.pws.cs.ui.ac.id/"]
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 

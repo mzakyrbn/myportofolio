@@ -37,3 +37,6 @@ class Education(models.Model):
     institution = models.CharField(max_length=255)
     year_start = models.CharField(max_length=15)
     year_end = models.CharField(max_length=15)
+
+    def __str__(self):
+	    return self.title
