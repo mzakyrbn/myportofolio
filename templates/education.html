@@ -8,7 +8,7 @@
 		<div class="container">
 			<p class="education-section-kicker">Edukasi saya sejauh ini</p>
 			<div>
-				<h1>Education</h1>
+				<h1>Edukasi</h1>
 				<a href="{% url 'main:create_education' %}"
 					class="button education-add-button">
 					<span aria-hidden="true">+</span>
@@ -26,6 +26,7 @@
 					   aria-label="Cari berdasarkan nama edukasi">
 				<button type="submit" class="button">Cari</button>
 			</form>
+			
 			<div class="experience-grid education-grid">
 				{% for education in education_list %}
 					<article class="education-card">

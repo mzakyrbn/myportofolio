@@ -1,5 +1,56 @@
-from django.forms import ModelForm, TextInput, Select
-from main.models import Education
+from django.forms import ModelForm, TextInput, Textarea, URLInput, Select, DateField
+from main.models import Experience, Education
+
+class ExperienceForm(ModelForm):
+	class Meta:
+		model = Experience
+		fields = [
+			"title",
+			"description",
+			"category",
+			"thumbnail",
+			"ended_at",
+		]
+
+		labels = {
+			"title": "experience's name",
+			"description": "experience's description",
+			"category": "experience category",
+			"thumbnail": "experience's thumbnail",
+			"ended_at": "date the experience end",
+		}
+
+		widgets = {
+			"title": TextInput(
+				attrs={
+					"placeholder": "main job",
+					"maxlength": 255,
+				}
+			),
+			"description": Textarea(
+				attrs={
+					"placeholder": "tell your story",
+					"rows": 3,
+				}
+			),
+			"category": Select(
+				attrs={
+					"placeholder": "full-time,part-time,volunteer,etc.",
+					"class": "experience-category",
+				}
+			),
+			"thumbnail": URLInput(
+				attrs={
+					"placeholder": "https://drive.google.com/thumbnail?id=...&sz=w1000",
+				}
+			),
+			"ended_at": TextInput(
+				attrs={
+					"placeholder": "empty if on going",
+					"maxlength": 31,
+				}
+			)
+		}
 
 class EducationForm(ModelForm):
 	class Meta:
@@ -13,8 +64,8 @@ class EducationForm(ModelForm):
 		]
 
 		labels = {
-			"title": "education name",
-			"category": "education category",
+			"title": "education's name",
+			"category": "education's category",
 			"institution": "education's organizer",
 			"year_start": "education's start year",
 			"year_end": "education's end year",
@@ -23,7 +74,7 @@ class EducationForm(ModelForm):
 		widgets = {
 			"title": TextInput(
 				attrs={
-					"placeholder": "portofolio website",
+					"placeholder": "official name",
 					"maxlength": 255,
 				}
 			),

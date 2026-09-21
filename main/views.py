@@ -1,11 +1,9 @@
 from django.contrib import messages
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from main.models import Experience
-from main.models import Education
-from main.forms import EducationForm
-from portofolio import settings
+from main.models import Experience, Education
+from main.forms import ExperienceForm, EducationForm
 
 def show_main(request):
     context = {
@@ -21,11 +19,66 @@ def show_main(request):
     return render(request, "index.html", context)
 
 def show_experience(request):
+    json_response = get_experiences_json(request)
+
+    experiences = serializers.deserialize(
+          "json",
+          json_response.content.decode("utf-8"),
+	)
+    experiences = [experience.object for experience in experiences]
+    title_query = request.GET.get("title", "").strip()
+
     context = {
         "name": "Muhammad Zaky Robbani",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experiences,
+        "title_query": title_query,
     }
     return render(request, "experience.html", context)
+
+def update_experience(request, experience_id=None):
+
+	if experience_id is not None:
+		experience = get_object_or_404(Experience, id=experience_id)
+	else:
+		experience = None
+            
+	form = ExperienceForm(request.POST or None, instance=experience)
+
+	if request.method == "POST" and form.is_valid():
+		form.save()
+
+		if experience:
+			messages.success(request, "")
+		else:
+			messages.success(request, "")
+            
+		return redirect("main:show_experience")
+
+	context = {
+           "name": "Muhammad Zaky Robbani",
+           "form": form,
+	}
+	return render(request, "experiences_form.html", context)
+
+def get_experiences_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.all()
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    experiences_json = serializers.serialize("json", experiences)
+    return HttpResponse(experiences_json, content_type="application/json")
+
+def delete_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "pengalaman berhasil dihapus!")
+        return redirect("main:show_experience")
+
+    return redirect("main:show_experience")
 
 def show_education(request):
     json_response = get_educations_json(request)
@@ -46,23 +99,15 @@ def show_education(request):
 
 def create_education(request):
 
-	provided_key = request.headers.get("X-Admin-Key")
-
-	if provided_key != settings.ADMIN_FEATURE_KEY:
-		return JsonResponse(
-			{"error": "Unauthorized"},
-			status=401
-		)
-
 	form = EducationForm(request.POST or None)
 
 	if request.method == "POST" and form.is_valid():
 		form.save()
-		messages.success(request, "Education baru berhasil ditambahkan!")
+		messages.success(request, "Laporan edukasi baru berhasil ditambahkan!")
 		return redirect("main:show_education")
 
 	context = {
-		"name": "jeff",
+		"name": "Muhammad Zaky Robbani",
 		"form": form,
 	}
 	return render(request, "educations_form.html", context)
