@@ -50,6 +50,12 @@
 									{% if education.education_url %}
 										<a href="{{ education.education_url }}" class="button">Lihat Laporan Edukasi</a>
 									{% endif %}
+									{% if editor or user.is_superuser %}
+									<a href="{% url 'main:update_education' education.id %}"
+										class="button experience-add-button">
+										edit edukasi
+									</a>
+									{% endif %}
 									{% if user.is_superuser %}
 										{% include "components/education_delete_modal.html" with education=education %}
 									{% endif %}

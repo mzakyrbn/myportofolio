@@ -120,3 +120,6 @@ sftp-config.json
 
 # macOS
 .DS_Store
+
+# other
+user_pass.txt

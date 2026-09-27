@@ -21,3 +21,5 @@ ai disclosure: use chatgpt to verify all of my answer
 3. proses serialization adalah proses yang mengubah data-data objek suatu programming language menjadi JSON text yang kemudian dapat disimpan dan dikirim. Namun proses serialization memerlukan penerima data untuk meng-deserialize JSON text tersebut agar dapat dimengerti oleh programnya kembali
 
 ai disclosure: use chatgpt to explain how csrf token works in the real world, and verify the other answer
+
+### tugas 4

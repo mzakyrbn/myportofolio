@@ -35,16 +35,18 @@ def show_experience(request):
     )
     experiences = [experience.object for experience in experiences]
     title_query = request.GET.get("title", "").strip()
+    editor = is_editor(request.user)
 
     context = {
         "name": "Muhammad Zaky Robbani",
         "experience_list": experiences,
         "title_query": title_query,
+        "editor": editor,
     }
     return render(request, "experience.html", context)
 
 @login_required(login_url="/login/")
-def update_experience(request, experience_id=None):
+def save_experience(request, experience_id=None):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -59,9 +61,9 @@ def update_experience(request, experience_id=None):
         form.save()
 
         if experience:
-            messages.success(request, "")
+            messages.success(request, "pengalaman berhasil diubah!")
         else:
-            messages.success(request, "")
+            messages.success(request, "pengalaman baru berhasil ditambah!")
             
         return redirect("main:show_experience")
 
@@ -78,7 +80,7 @@ def get_experiences_json(request):
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
 
-    experiences_json = serializers.serialize("json", experiences)
+    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
     return HttpResponse(experiences_json, content_type="application/json")
 
 @login_required(login_url="/login/")
@@ -92,6 +94,18 @@ def delete_experience(request, experience_id):
 
     return redirect("main:show_experience")
 
+@login_required(login_url="/login/")
+def toggle_star_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        if request.user in experience.starred_by.all():
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+
+    return redirect("main:show_experience")
+
 def show_education(request):
     json_response = get_educations_json(request)
 
@@ -101,24 +115,36 @@ def show_education(request):
     )
     educations = [education.object for education in educations]
     title_query = request.GET.get("title", "").strip()
+    editor = is_editor(request.user)
     
     context = {
         "name": "Muhammad Zaky Robbani",
         "education_list": educations,
         "title_query": title_query,
+        "editor": editor,
     }
     return render(request, "education.html", context)
 
 @login_required(login_url="/login/")
-def create_education(request):
+def save_education(request, education_id=None):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    form = EducationForm(request.POST or None)
+    if education_id is not None:
+        education = get_object_or_404(Education, pk=education_id)
+    else:
+        education = None
+             
+    form = EducationForm(request.POST or None, instance=education)
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Laporan edukasi baru berhasil ditambahkan!")
+
+        if education:
+            messages.success(request, "laporan edukasi berhasil diubah!")
+        else:
+            messages.success(request, "laporan edukasi baru berhasil ditambah!")
+    
         return redirect("main:show_education")
 
     context = {
@@ -195,3 +221,6 @@ def logout_user(request):
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
+def is_editor(user):
+    return user.groups.filter(name='editor').exists()
