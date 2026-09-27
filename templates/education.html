@@ -9,11 +9,13 @@
 			<p class="education-section-kicker">Edukasi saya sejauh ini</p>
 			<div>
 				<h1>Edukasi</h1>
-				<a href="{% url 'main:create_education' %}"
-					class="button education-add-button">
-					<span aria-hidden="true">+</span>
-					Tambah Laporan Edukasi
-                </a>
+				{% if user.is_superuser %}
+					<a href="{% url 'main:create_education' %}"
+						class="button education-add-button">
+						<span aria-hidden="true">+</span>
+						Tambah Laporan Edukasi
+					</a>
+				{% endif %}
 			</div>
 			<form method="get"
 				  action="{% url 'main:show_education' %}"
@@ -42,14 +44,17 @@
 						<p class="education-description">
 							{{ education.institution }}
 						</p>
-						<div class="education-card-actions">
-							<div class="education-actions">
-								{% if project.project_url %}
-									<a href="{{ education.education_url }}" class="button">Lihat Laporan Edukasi</a>
-								{% endif %}
-								{% include "components/education_delete_modal.html" with education=education %}
+							<div class="education-card-actions">
+								<div class="education-actions">
+									{% include "components/education_star.html" with education=education %}
+									{% if education.education_url %}
+										<a href="{{ education.education_url }}" class="button">Lihat Laporan Edukasi</a>
+									{% endif %}
+									{% if user.is_superuser %}
+										{% include "components/education_delete_modal.html" with education=education %}
+									{% endif %}
+								</div>
 							</div>
-						</div>
 					</article>
 				{% empty %}
 					{% if title_query %}
