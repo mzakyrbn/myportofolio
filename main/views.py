@@ -2,12 +2,13 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib import messages
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from main.models import Experience, Education
 from main.forms import ExperienceForm, EducationForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied 
+from django.views.decorators.http import require_POST
 import datetime
 
 def show_main(request):
@@ -107,21 +108,14 @@ def toggle_star_experience(request, experience_id):
     return redirect("main:show_experience")
 
 def show_education(request):
-    json_response = get_educations_json(request)
-
-    educations = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    educations = [education.object for education in educations]
     title_query = request.GET.get("title", "").strip()
     editor = is_editor(request.user)
     
     context = {
         "name": "Muhammad Zaky Robbani",
-        "education_list": educations,
         "title_query": title_query,
         "editor": editor,
+        "form": EducationForm(),
     }
     return render(request, "education.html", context)
 
@@ -153,15 +147,52 @@ def save_education(request, education_id=None):
     }
     return render(request, "educations_form.html", context)
 
+@require_POST
+def create_education_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan laporan edukasi."},
+            status=403,
+        )
+
+    form = EducationForm(request.POST)
+    if form.is_valid():
+        education = form.save()
+        return JsonResponse(
+            {"message": "laporan edukasi berhasil ditambahkan.", "pk": str(education.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
 def get_educations_json(request):
     title_query = request.GET.get("title", "").strip()
-    educations = Education.objects.all()
+    educations = Education.objects.prefetch_related('starred_by').all()
 
     if title_query:
         educations = educations.filter(title__icontains=title_query)
 
-    educations_json = serializers.serialize("json", educations, use_natural_foreign_keys=True)
-    return HttpResponse(educations_json, content_type="application/json")
+    data = []
+    for education in educations:
+        starred_users = education.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(education.id),
+            "fields": {
+                "title": education.title,
+                "category": education.category,
+                "institution": education.institution,
+                "year_start": education.year_start,
+                "year_end": education.year_end,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+        
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_education(request, education_id):
