@@ -58,7 +58,6 @@
 {% endif %}
 
 <script>
-    
     const BASE_EDUCATIONS_ENDPOINT = "{% url 'main:get_educations_json' %}";
     const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
     let educationsAbortController;
@@ -154,7 +153,7 @@
                 headers: { 'Accept': 'application/json' },
                 signal: educationsAbortController.signal,
             });
-
+				
             if (!response.ok) throw new Error('Failed to fetch data');
 
             const educationData = await response.json();
@@ -240,6 +239,7 @@
                 showToast('Gagal menambahkan laporan edukasi', errorMessages.join(' '), 'error');
             }
         } catch (error) {
+			console.log(error.String);
             console.error('Error adding education:', error);
             showToast('Gagal menambahkan laporan edukasi', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
         } finally {

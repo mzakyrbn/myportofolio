@@ -546,10 +546,15 @@ h1, .brand {
     margin-bottom: 1.25rem;
 }
 
+.education-form-modal__content h2 {
+	color: var(--white-calk);
+}
+
 .form-group label {
     display: block;
     margin-bottom: 0.4rem;
     font-weight: 700;
+	color: var(--white-calk);
 }
 
 .form-group input,
