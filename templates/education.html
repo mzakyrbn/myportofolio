@@ -153,7 +153,7 @@
                 headers: { 'Accept': 'application/json' },
                 signal: educationsAbortController.signal,
             });
-				
+
             if (!response.ok) throw new Error('Failed to fetch data');
 
             const educationData = await response.json();
@@ -239,13 +239,16 @@
                 showToast('Gagal menambahkan laporan edukasi', errorMessages.join(' '), 'error');
             }
         } catch (error) {
-			console.log(error.String);
             console.error('Error adding education:', error);
             showToast('Gagal menambahkan laporan edukasi', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
         } finally {
             submitButton.disabled = false;
         }
     }
+
+	function closeEducationModal() {
+    document.getElementById("add-education-modal").hidePopover();
+}
 
     if (educationForm) {
         educationForm.addEventListener('submit', addEducation);

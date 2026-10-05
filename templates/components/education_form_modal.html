@@ -19,8 +19,6 @@
 
         <h2 id="add-education-modal-title">Tambah Education Baru</h2>
         <form id="education-form"
-    		method="post"
-   	        action="{% url 'main:create_education_ajax' %}"
         	class="education-form">
             {% csrf_token %}
             {% for field in form %}

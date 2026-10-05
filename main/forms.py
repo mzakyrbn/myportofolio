@@ -48,7 +48,7 @@ class ExperienceForm(ModelForm):
 			),
 			"ended_at": TextInput(
 				attrs={
-					"placeholder": "empty if on going",
+					"placeholder": "format: YYYY-MM-DD HH:MM",
 					"maxlength": 31,
 				}
 			)
