@@ -38,8 +38,15 @@ class Education(models.Model):
     category = models.CharField(max_length=31, choices=EDUCATION_CHOICES, default='formal')
     institution = models.CharField(max_length=255)
     year_start = models.CharField(max_length=15)
-    year_end = models.CharField(max_length=15)
+    year_end = models.CharField(max_length=15, blank=True)
     starred_by = models.ManyToManyField(User, related_name="starred_educations", blank=True)
 
     def __str__(self):
 	    return self.title
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name
